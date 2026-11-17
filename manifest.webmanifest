@@ -1,0 +1,17 @@
+{
+  "name": "BRScience no seu bolso",
+  "short_name": "BRScience",
+  "description": "Live commerce, loja oficial e marketplaces da BRScience.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#17402f",
+  "theme_color": "#17402f",
+  "lang": "pt-BR",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}

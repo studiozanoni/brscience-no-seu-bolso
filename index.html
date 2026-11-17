@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17402f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BRScience">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>BRScience no seu bolso · Demo interativa</title>
+<style>
+:root{--cream:#f7e9d2;--cream2:#fff6e6;--green:#17402f;--green2:#0f2c21;--coral:#f26b4e;--ink:#1b2a24;--muted:#6b7a72}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+header.top{padding:22px 0;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-weight:800;color:var(--green);letter-spacing:-.5px;font-size:20px}
+.brand span{color:var(--coral)}
+.tag{font-size:12px;background:var(--green);color:#fff;padding:6px 12px;border-radius:99px}
+.hero{display:grid;grid-template-columns:1fr 400px;gap:40px;align-items:start;padding:10px 0 60px}
+.hero h1{font-size:clamp(38px,5.5vw,64px);line-height:1.02;letter-spacing:-2px;color:var(--green);font-weight:800}
+.hero h1 em{font-style:normal;color:var(--coral)}
+.lead{margin:16px 0 26px;font-size:18px;color:#34493f;max-width:520px;line-height:1.45}
+.steps{display:grid;gap:10px;max-width:560px}
+.step{display:flex;gap:14px;align-items:center;text-align:left;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.55);border:2px solid transparent;transition:.2s}
+.step:hover{background:#fff}
+.step.on{background:#fff;border-color:var(--coral);box-shadow:0 10px 30px rgba(23,64,47,.12)}
+.step .n{flex:none;width:34px;height:34px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+.step.on .n{background:var(--coral)}
+.step b{display:block;color:var(--green);font-size:16px}
+.step small{color:var(--muted);font-size:13px}
+.hint{margin-top:16px;font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.hint i{width:8px;height:8px;border-radius:50%;background:var(--coral);animation:pulse 1.4s infinite}
+@keyframes pulse{50%{transform:scale(1.8);opacity:.4}}
+
+/* phone */
+.stage{position:sticky;top:16px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.phone{width:340px;height:690px;background:#111;border-radius:50px;padding:11px;box-shadow:0 40px 80px rgba(23,64,47,.35),inset 0 0 0 2px #444;position:relative}
+.phone:before{content:"";position:absolute;top:20px;left:50%;transform:translateX(-50%);width:100px;height:28px;background:#000;border-radius:20px;z-index:50}
+.screen{width:100%;height:100%;border-radius:40px;overflow:hidden;position:relative;background:#000;color:#fff}
+.scene{position:absolute;inset:0;display:none;flex-direction:column;animation:fade .35s}
+.scene.on{display:flex}
+@keyframes fade{from{opacity:0;transform:scale(.98)}}
+.status{height:46px;flex:none;display:flex;justify-content:space-between;align-items:flex-end;padding:0 24px 4px;font-size:12px;font-weight:600;z-index:5}
+.caption{font-size:13px;color:var(--muted);text-align:center;max-width:340px;min-height:36px}
+.caption b{color:var(--green)}
+
+/* tiktok profile */
+.tt{background:#121212}
+.tt .top{display:flex;justify-content:space-between;padding:6px 18px;font-size:14px}
+.avatar{width:84px;height:84px;border-radius:50%;background:var(--green);display:grid;place-items:center;font-weight:800;font-size:12px;margin:6px auto;border:2px solid #2a6b50}
+.tt h4{text-align:center;font-size:14px}
+.btns{display:flex;gap:6px;justify-content:center;margin:10px 0}
+.btn-r{background:#fe2c55;padding:8px 26px;border-radius:5px;font-weight:600;font-size:13px}
+.btn-g{background:#2d2d2d;padding:8px 18px;border-radius:5px;font-size:13px;font-weight:600}
+.bio{text-align:center;font-size:12px;color:#ccc;line-height:1.4}
+.stats{display:flex;justify-content:center;gap:22px;margin:12px 0;font-size:12px;color:#bbb}
+.stats b{display:block;color:#fff;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:8px;flex:1;overflow:auto}
+.vid{aspect-ratio:3/4;position:relative;display:flex;align-items:flex-end;justify-content:center;text-align:center;font-size:9px;font-weight:700;padding:6px 3px;line-height:1.1;cursor:pointer;text-transform:uppercase;transition:.2s}
+.vid:hover{filter:brightness(1.2);transform:scale(1.03);z-index:2}
+.vid.live{outline:2px solid #fe2c55;outline-offset:-2px}
+.vid .badge{position:absolute;top:5px;left:5px;background:#fe2c55;font-size:8px;padding:2px 5px;border-radius:3px}
+
+/* live */
+.live{background:linear-gradient(180deg,#2b1d17 0%,#3a281d 40%,#1a110c 100%)}
+.hair{position:absolute;inset:60px 0 150px;display:grid;place-items:center;pointer-events:none}
+.hair svg{width:70%;max-height:100%}
+.lhead{display:flex;align-items:center;gap:8px;padding:0 14px;z-index:5;margin-top:-4px}
+.lav{width:34px;height:34px;border-radius:50%;background:var(--green);display:grid;place-items:center;font-size:8px;font-weight:800;border:2px solid #fe2c55}
+.lhead .nm{font-size:12px;font-weight:700;line-height:1.2}
+.lhead .nm small{display:block;font-weight:400;opacity:.7;font-size:10px}
+.livepill{margin-left:auto;background:#fe2c55;font-size:10px;font-weight:800;padding:4px 8px;border-radius:5px;display:flex;gap:5px;align-items:center}
+.livepill i{width:6px;height:6px;background:#fff;border-radius:50%;animation:pulse 1s infinite}
+.viewers{white-space:nowrap;font-size:11px;background:rgba(0,0,0,.45);padding:4px 8px;border-radius:99px}
+.chat{position:absolute;left:12px;right:70px;bottom:132px;display:flex;flex-direction:column;gap:7px;max-height:200px;overflow:hidden;justify-content:flex-end;-webkit-mask-image:linear-gradient(transparent,#000 35%);mask-image:linear-gradient(transparent,#000 35%)}
+.msg{display:flex;gap:7px;align-items:center;font-size:12px;animation:up .3s}
+@keyframes up{from{opacity:0;transform:translateY(10px)}}
+.msg .a{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700}
+.msg b{opacity:.7;font-weight:600;display:block;font-size:10px}
+.msg.buy{background:rgba(254,44,85,.25);padding:4px 8px;border-radius:10px}
+.side{position:absolute;right:12px;bottom:140px;display:flex;flex-direction:column;gap:14px;align-items:center;font-size:10px}
+.side button{font-size:24px;line-height:1}
+.hearts{position:absolute;right:20px;bottom:170px;pointer-events:none;z-index:9}
+.heart{position:absolute;bottom:0;font-size:22px;animation:float 1.8s forwards}
+@keyframes float{to{transform:translate(var(--x),-240px) scale(1.4);opacity:0}}
+.pin{position:absolute;left:10px;right:10px;bottom:62px;background:#fff;color:var(--ink);border-radius:14px;padding:8px;display:flex;gap:10px;align-items:center;z-index:6;box-shadow:0 10px 30px rgba(0,0,0,.5);animation:up .5s}
+.pin .th{flex:none;width:46px;height:46px;border-radius:8px;background:#eef3ef;display:grid;place-items:center}
+.pin b{font-size:12px;display:block;line-height:1.2}
+.pin small{color:var(--coral);font-weight:800;font-size:13px}
+.pin small s{color:#999;font-weight:400;font-size:10px;margin-left:4px}
+.buy{margin-left:auto;background:#fe2c55;color:#fff;font-weight:700;font-size:13px;padding:10px 14px;border-radius:8px;animation:glow 1.6s infinite}
+@keyframes glow{50%{box-shadow:0 0 0 7px rgba(254,44,85,.25)}}
+.cbar{position:absolute;left:10px;right:10px;bottom:12px;display:flex;gap:8px;align-items:center;z-index:6}
+.cbar div{flex:1;background:rgba(255,255,255,.14);border-radius:99px;padding:10px 14px;font-size:12px;color:#ccc}
+.cart{position:relative;font-size:22px}
+.cart em{position:absolute;top:-5px;right:-6px;background:#fe2c55;color:#fff;font-style:normal;font-size:9px;min-width:16px;height:16px;border-radius:8px;display:grid;place-items:center;font-weight:700}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;color:var(--ink);border-radius:22px 22px 0 0;padding:16px;z-index:20;transform:translateY(105%);transition:transform .35s;box-shadow:0 -10px 40px rgba(0,0,0,.5)}
+.sheet.open{transform:none}
+.sheet .row{display:flex;gap:12px;align-items:center}
+.sheet .th{width:64px;height:64px;border-radius:10px;background:#eef3ef;display:grid;place-items:center;flex:none}
+.sheet h5{font-size:14px}
+.sheet .pr{font-size:20px;font-weight:800;color:var(--coral)}
+.qty{display:flex;align-items:center;gap:12px;margin:14px 0;font-weight:700}
+.qty button{width:30px;height:30px;border-radius:8px;background:#eef3ef;font-size:18px}
+.pay{display:flex;gap:6px;margin-bottom:12px}
+.pay span{flex:1;text-align:center;padding:8px 4px;border:2px solid #e3e8e5;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer}
+.pay span.on{border-color:var(--coral);background:#fff3ef}
+.cta{display:block;width:100%;background:#fe2c55;color:#fff;font-weight:800;padding:14px;border-radius:12px;font-size:15px}
+.cta.green{background:var(--green)}
+.done{text-align:center;padding:10px 0}
+.done .ok{width:60px;height:60px;border-radius:50%;background:#1fa971;color:#fff;font-size:32px;display:grid;place-items:center;margin:0 auto 10px;animation:pop .4s}
+@keyframes pop{from{transform:scale(0)}}
+.x{position:absolute;top:10px;right:14px;font-size:18px;opacity:.5}
+
+/* store */
+.store{background:#f4f1ea;color:var(--ink)}
+.store .status{color:var(--ink)}
+.shead{background:var(--green);color:#fff;padding:0 14px 12px}
+.shead .srch{background:rgba(255,255,255,.18);border-radius:10px;padding:9px 12px;font-size:12px;margin-bottom:12px;opacity:.9}
+.shead .id{display:flex;gap:10px;align-items:center}
+.shead .lg{width:52px;height:52px;border-radius:50%;background:var(--green2);border:2px solid #fff3;display:grid;place-items:center;font-size:8px;font-weight:800}
+.shead b{font-size:16px}
+.shead small{display:inline-block;background:#2f8a67;font-size:10px;padding:1px 6px;border-radius:4px;margin-left:6px}
+.trust{display:flex;gap:6px;margin-top:10px;font-size:9px;opacity:.9}
+.trust span{flex:1;background:rgba(255,255,255,.1);padding:6px;border-radius:8px;text-align:center}
+.regions{display:flex;gap:6px;padding:10px 12px 4px}
+.regions button{flex:1;padding:7px 4px;border-radius:99px;background:#fff;font-size:11px;font-weight:700;border:2px solid transparent}
+.regions button.on{border-color:var(--coral);color:var(--coral)}
+.prods{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:8px 12px;overflow:auto;flex:1;align-content:start}
+.p{background:#fff;border-radius:14px;padding:8px;cursor:pointer;transition:.15s;border:2px solid transparent}
+.p:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.1)}
+.p.sel{border-color:var(--coral)}
+.p .im{height:100px;display:grid;place-items:center;background:#f3f6f4;border-radius:10px}
+.p b{font-size:12px;display:block;margin-top:6px;line-height:1.2}
+.p small{color:var(--muted);font-size:10px}
+.p .pr{color:var(--coral);font-weight:800;font-size:14px;margin-top:2px}
+.sbtn{margin:8px 12px 14px}
+
+/* marketplace */
+.mp{background:#fff;color:var(--ink)}
+.mp .status{color:var(--ink)}
+.mphead{padding:0 12px 10px;color:#fff}
+.mphead .logo{font-weight:900;font-size:19px;letter-spacing:-1px}
+.mphead .s{margin-top:8px;background:#fff;color:#777;border-radius:8px;padding:8px 10px;font-size:12px;display:flex;justify-content:space-between}
+.mpbody{overflow:auto;flex:1;background:#f2f2f2}
+.mpban{padding:12px;color:#fff;font-size:12px;font-weight:700}
+.mpcard{background:#fff;padding:12px;display:flex;gap:12px;margin-bottom:8px}
+.mpcard .im{flex:none;width:120px;height:140px;background:#f6f6f6;display:grid;place-items:center;border-radius:6px}
+.mpcard h6{font-size:12px;font-weight:600;line-height:1.3}
+.stars{color:#f5a623;font-size:11px;margin:4px 0}
+.mpcard .pr{font-size:20px;font-weight:800;margin:2px 0}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}
+.chips span{font-size:9px;padding:2px 6px;border-radius:4px;border:1px solid currentColor;font-weight:700}
+.mpbtn{display:block;width:100%;padding:10px;font-weight:800;color:#fff;border-radius:6px;font-size:13px;margin-top:6px}
+.mpsec{background:#fff;padding:12px;margin-bottom:8px;font-size:12px}
+.mpsec h6{font-size:12px;margin-bottom:6px}
+.rev{padding:6px 0;border-top:1px solid #eee;font-size:11px;color:#555;line-height:1.35}
+.plat{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:360px}
+.plat button{padding:7px 12px;border-radius:99px;font-size:12px;font-weight:700;background:#fff;border:2px solid transparent;transition:.15s}
+.plat button:hover{background:#fff8ee}
+.plat button.on{border-color:var(--coral);color:var(--coral)}
+
+/* globe */
+.map{background:var(--green2);padding:0 14px 14px}
+.map .status{color:#fff}
+.mapbox{flex:1;position:relative;background:radial-gradient(circle at 50% 40%,#1d5b42,#0f2c21);border-radius:20px;overflow:hidden;margin:0 0 10px}
+.dot{position:absolute;transform:translate(-50%,-50%);cursor:pointer}
+.dot i{display:block;width:14px;height:14px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 0 rgba(242,107,78,.6);animation:ring 2s infinite}
+.dot.future i{background:#f7c948;animation-delay:.6s}
+.dot span{position:absolute;top:18px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;white-space:nowrap}
+@keyframes ring{70%{box-shadow:0 0 0 14px rgba(242,107,78,0)}}
+.mapinfo{background:rgba(255,255,255,.1);border-radius:14px;padding:12px;font-size:12px;line-height:1.45;min-height:112px}
+.mapinfo b{font-size:15px;display:block;margin-bottom:2px}
+
+/* AI host live */
+.studio{position:absolute;left:0;right:0;top:84px;bottom:284px;background:radial-gradient(circle at 50% 30%,#3f8a6b,#17402f 55%,#0c2219 100%);overflow:hidden}
+.ring{position:absolute;bottom:44px;left:50%;width:250px;height:250px;transform:translateX(-50%);border-radius:50%;box-shadow:0 0 0 7px rgba(255,240,220,.16),0 0 70px 14px rgba(255,220,180,.16)}
+.host{position:absolute;left:50%;bottom:0;width:300px;height:300px;transform:translateX(-50%)}
+.headg{animation:bob 3.4s ease-in-out infinite;transform-origin:150px 200px}
+@keyframes bob{50%{transform:translateY(2px) rotate(1.2deg)}}
+.eyes{animation:blink 4.5s infinite;transform-origin:150px 120px}
+@keyframes blink{94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+.shelf{position:absolute;right:8px;bottom:6px;display:flex;align-items:flex-end;gap:2px;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5));animation:float2 3s ease-in-out infinite}
+@keyframes float2{50%{transform:translateY(-5px)}}
+.shelf svg{animation:up .5s}
+.salechip{position:absolute;top:92px;left:12px;z-index:6;background:rgba(0,0,0,.6);padding:5px 10px;border-radius:99px;font-size:11px;display:flex;gap:2px;backdrop-filter:blur(4px)}
+.ptoast{position:absolute;top:126px;left:12px;z-index:6;background:rgba(255,255,255,.95);color:var(--ink);padding:6px 10px;border-radius:12px;font-size:11px;line-height:1.3;opacity:0;transform:translateX(-20px);max-width:190px}
+.ptoast small{color:#777}
+.ptoast.show{animation:toastin 3s forwards}
+@keyframes toastin{8%,80%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-10px)}}
+.sub{position:absolute;left:12px;right:12px;bottom:238px;z-index:6;text-align:center;font-size:13px;font-weight:700;line-height:1.35;min-height:20px}
+.sub span{background:rgba(0,0,0,.62);padding:3px 8px;border-radius:8px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.chat{bottom:132px;max-height:100px}
+/* tmall */
+.tm{background:#f4f4f4;color:#222}
+.tm .status{background:#ff0036;color:#fff}
+.tmhead{background:#ff0036;color:#fff;padding:0 12px 10px;display:flex;justify-content:space-between;align-items:center;flex:none}
+.tmbody{flex:1;overflow:auto;scrollbar-width:none}
+.tmban{background:linear-gradient(135deg,#ff0036,#7a00ff 130%);color:#fff;padding:14px;text-align:center;position:relative;overflow:hidden}
+.tmban .big{font-size:50px;font-weight:900;letter-spacing:-3px;line-height:1;text-shadow:0 4px 0 rgba(0,0,0,.25)}
+.conf{position:absolute;top:-20px;font-size:20px;animation:fall 3.2s linear infinite}
+@keyframes fall{to{transform:translateY(210px) rotate(240deg);opacity:.2}}
+.gmv{background:rgba(0,0,0,.32);border-radius:10px;padding:8px;margin-top:10px}
+.gmv small{font-size:10px;opacity:.85}
+.gmv b{display:block;font-size:20px;color:#ffe066;font-variant-numeric:tabular-nums}
+.env{margin:10px;background:linear-gradient(90deg,#ffe9a8,#ffd166);border-radius:14px;padding:10px 12px;display:flex;gap:12px;align-items:center;cursor:pointer;font-size:13px;animation:glow2 1.6s infinite}
+.env.open{animation:none;background:#fff3c4}
+@keyframes glow2{50%{box-shadow:0 0 0 6px rgba(255,209,102,.5)}}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:4px 10px 10px;text-align:center;font-size:9px;color:#666}
+.cats i{display:grid;place-items:center;width:42px;height:42px;margin:0 auto 3px;background:#fff;border-radius:14px;font-style:normal;font-weight:800;color:#ff0036;font-size:13px}
+.tmcard{margin:0 10px 10px;background:#fff;border-radius:14px;padding:10px;display:flex;gap:10px;align-items:center;font-size:12px}
+.tmcard.official{border:2px solid #ff0036}
+.tmlogo{flex:none;width:42px;height:42px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:800;font-size:12px}
+.vbadge{background:#ff0036;color:#fff;font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700}
+.tmgo{background:#ff0036;color:#fff;font-weight:700;padding:8px 12px;border-radius:99px;font-size:12px}
+.tmsec{margin:6px 10px;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.cdbox{display:flex;gap:3px}.cdbox span{background:#222;color:#fff;border-radius:4px;padding:3px 5px;font-weight:800;font-size:12px;font-variant-numeric:tabular-nums}
+.flashg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:0 10px 10px}
+.fi{background:#fff;border-radius:12px;padding:6px;font-size:10px}
+.fi .im{height:70px;display:grid;place-items:center;background:#f6f6f6;border-radius:8px}
+.fi b{display:block;margin-top:4px;line-height:1.15}
+.fi .pp{color:#ff0036;font-weight:800;margin:2px 0 4px}
+.prog{height:14px;border-radius:7px;background:#ffd9df;position:relative;overflow:hidden}
+.prog i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#ff0036,#ff6b3d);transition:width .8s}
+.prog span{position:relative;font-size:8px;color:#fff;font-weight:700;display:block;text-align:center;line-height:14px;mix-blend-mode:normal}
+.tmlive{margin:0 10px 10px;background:#fff;border-radius:14px;padding:10px;display:flex;gap:10px;align-items:center;font-size:12px}
+.liv{background:#ff0036;color:#fff;font-weight:800;font-size:10px;padding:4px 7px;border-radius:5px;animation:pulse2 1s infinite}
+@keyframes pulse2{50%{opacity:.5}}
+.rank{margin:0 10px;background:#fff;border-radius:14px;overflow:hidden;font-size:12px}
+.rank div{display:flex;gap:10px;padding:9px 12px;border-bottom:1px solid #f0f0f0;align-items:center}
+.rank div.me{background:#fff2f4;font-weight:700}
+.rank b{color:#ff0036;width:14px}.rank span{flex:1}.rank em{font-style:normal;color:#ff0036;font-weight:800}
+.tmtoast{position:absolute;left:10px;bottom:62px;background:rgba(0,0,0,.78);color:#fff;padding:7px 11px;border-radius:12px;font-size:11px;line-height:1.3;opacity:0;z-index:8}
+.tmtoast small{opacity:.7}
+.tmtoast.show{animation:toastin 2.2s forwards}
+.tmnav{position:absolute;left:0;right:0;bottom:0;height:56px;background:#fff;border-top:1px solid #eee;display:flex;justify-content:space-around;align-items:center;color:#222;font-size:12px;font-weight:700;z-index:9}
+.tmnav span{text-align:center;position:relative;line-height:1.1}.tmnav small{display:block;font-weight:400;font-size:9px;color:#888}
+.tmnav em{position:absolute;top:-4px;right:-10px;background:#ff0036;color:#fff;font-size:9px;font-style:normal;padding:1px 5px;border-radius:8px}
+/* slide */
+.slide{background:var(--green);color:#fff;border-radius:26px;padding:30px;box-shadow:0 30px 70px rgba(23,64,47,.3)}
+.slide h3{font-size:clamp(24px,3.2vw,36px);letter-spacing:-1px;line-height:1.1;margin-bottom:6px}
+.slide h3 em{font-style:normal;color:#ffb199}
+.slide .sub2{opacity:.8;font-size:15px;margin-bottom:20px;max-width:620px;line-height:1.45}
+.tg{display:inline-flex;background:rgba(255,255,255,.12);border-radius:99px;padding:4px;margin-bottom:18px}
+.tg button{padding:9px 18px;border-radius:99px;font-weight:700;font-size:14px;color:#fff;opacity:.75}
+.tg button.on{background:var(--coral);opacity:1}
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.serp{background:#fff;color:var(--ink);border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.serp .q{background:#f2f2f2;border-radius:99px;padding:8px 14px;font-size:13px;color:#555}
+.res{display:flex;gap:10px;align-items:center;padding:8px;border-radius:12px;border:1px solid #eee;animation:up .35s;font-size:13px}
+.res.main{border:2px solid var(--coral);background:#fff6f2}
+.res .im{flex:none;width:44px;height:52px;background:#f3f3f3;border-radius:8px;display:grid;place-items:center}
+.res b{display:block}.res small{color:#777}
+.res .pr{margin-left:auto;font-weight:800;white-space:nowrap}
+.res .pr.bad{color:#c0392b}
+.res .badge2{font-size:10px;font-weight:700;background:var(--green);color:#fff;border-radius:4px;padding:1px 6px;margin-right:4px}
+.meters{display:grid;gap:12px;margin-bottom:16px}
+.mt label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.mt div{height:10px;background:rgba(255,255,255,.14);border-radius:5px;overflow:hidden}
+.mt i{display:block;height:100%;background:var(--coral);border-radius:5px;transition:width .6s}
+.why6{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.why6 button{text-align:left;background:rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.35;color:#fff;border:1px solid transparent;transition:.15s}
+.why6 button b{display:block;font-size:14px;margin-bottom:2px}
+.why6 button.on{background:#fff;color:var(--ink);border-color:var(--coral)}
+.why6 button span{display:none;color:#4a5d54}.why6 button.on span{display:block}
+.fine{font-size:11px;opacity:.7;margin-top:14px;line-height:1.4}
+.fine a{color:#ffb199}
+.gloss{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
+.gloss button{text-align:left;background:#fff;border-radius:14px;padding:14px;color:var(--ink);box-shadow:0 8px 24px rgba(23,64,47,.08);font-size:13px;line-height:1.4}
+.gloss b{display:block;color:var(--green);font-size:15px;margin-bottom:4px}
+.gloss span{color:#4a5d54;display:block}
+.gloss em{font-style:normal;color:var(--coral);font-weight:700;font-size:11px;display:block;margin-top:6px}
+@media(max-width:760px){.sgrid,.why6,.gloss{grid-template-columns:1fr}.slide{padding:20px}}
+.gl{display:none!important}
+body.showpt .gl{display:revert!important}
+body.showpt .tmnav small.gl{display:block!important}
+.ptstrip{background:#fff6c9;color:#5a4a00;font-size:11px;padding:8px 12px;border-top:1px solid #eadf9a}
+#ptBtn{background:var(--green)!important;color:#fff}
+#ptBtn.on{background:var(--coral)!important}
+/* modo app */
+.apptabs{display:none}
+body.appmode{--aw:min(100vw,430px);background:#111}
+body.appmode header.top,body.appmode .hero>div:first-child,body.appmode section.blk,body.appmode footer,body.appmode .caption{display:none}
+body.appmode .wrap{padding:0;max-width:none}
+body.appmode .hero{display:block;padding:0}
+body.appmode .stage{position:fixed;top:0;bottom:0;left:50%;width:var(--aw);margin-left:calc(var(--aw) / -2);gap:0;background:#000;z-index:5}
+body.appmode .phone{width:100%;height:calc(100dvh - 58px - env(safe-area-inset-bottom,0px));border-radius:0;padding:0;box-shadow:none;background:#000;transform:none!important}
+body.appmode .phone:before{display:none}
+body.appmode .screen{border-radius:0}
+body.appmode .status{color:transparent}
+body.appmode .apptabs{display:flex;position:fixed;bottom:0;left:50%;width:var(--aw);margin-left:calc(var(--aw) / -2);height:calc(58px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:#0b0b0b;border-top:1px solid #262626;z-index:20}
+.apptabs button{flex:1;color:#8a8a8a;font-size:9px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0}
+.apptabs button i{font-style:normal;font-size:19px;line-height:1}
+.apptabs button.on{color:var(--coral)}
+body.appmode .plat{display:none}
+body.appmode.mpon .plat{display:flex;position:fixed;bottom:calc(58px + env(safe-area-inset-bottom,0px));left:50%;width:var(--aw);margin-left:calc(var(--aw) / -2);max-width:none;flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;background:rgba(0,0,0,.88);padding:8px;z-index:19}
+body.appmode .plat button{flex:none}
+body.appmode.mpon #s-mp{padding-bottom:50px}
+.hdrbtns{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#appBtn{background:var(--coral);color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:99px}
+/* sections below */
+section.blk{padding:70px 0;border-top:1px solid rgba(23,64,47,.12)}
+section.blk h2{font-size:clamp(30px,4vw,46px);letter-spacing:-1.5px;color:var(--green);line-height:1.05;margin-bottom:10px}
+section.blk h2 em{font-style:normal;color:var(--coral)}
+section.blk>.wrap>p{max-width:640px;color:#34493f;font-size:17px;line-height:1.5;margin-bottom:28px}
+.calc{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.card{background:#fff;border-radius:22px;padding:24px;box-shadow:0 14px 40px rgba(23,64,47,.08)}
+.ctl{margin-bottom:18px}
+.ctl label{display:flex;justify-content:space-between;font-size:14px;font-weight:600;color:var(--green);margin-bottom:6px}
+.ctl label b{color:var(--coral)}
+input[type=range]{width:100%;accent-color:var(--coral)}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.kpi{background:var(--cream2);border-radius:14px;padding:14px}
+.kpi small{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.kpi b{display:block;font-size:26px;color:var(--green);letter-spacing:-1px}
+.kpi.big{grid-column:1/-1;background:var(--green);color:#fff}
+.kpi.big small{color:#bfe0d1}.kpi.big b{color:#fff;font-size:38px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:110px}
+.bars div{flex:1;background:var(--coral);border-radius:6px 6px 0 0;position:relative;transition:height .4s;min-height:4px}
+.bars span{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-size:10px;color:var(--muted)}
+.note{font-size:12px;color:var(--muted);margin-top:30px;line-height:1.4}
+.road{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.road .card h4{color:var(--green);margin:6px 0}
+.road .card small{color:var(--coral);font-weight:800;font-size:12px}
+.road .card p{font-size:13px;color:#4a5d54;line-height:1.45}
+footer{background:var(--green);color:#fff;padding:60px 0;text-align:center}
+footer h2{font-size:clamp(34px,5vw,60px);letter-spacing:-2px;line-height:1.05}
+footer h2 em{font-style:normal;color:var(--coral)}
+footer p{margin-top:14px;opacity:.8}
+@media(max-width:1000px){.hero{grid-template-columns:1fr 360px;gap:24px}.phone{transform:scale(.95);transform-origin:top center}}
+@media(max-width:760px){
+ .hero{grid-template-columns:1fr}
+ .stage{position:static;order:-1}
+ .calc,.road{grid-template-columns:1fr}
+ .road{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){.phone{transform:scale(.92)}.road{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">BR<span>Science</span> · no seu bolso</div>
+    <div class="hdrbtns"><button id="appBtn">📱 Abrir como app</button><div class="tag">Demo interativa · conceito ilustrativo</div></div>
+  </header>
+
+  <div class="hero">
+    <div>
+      <h1>Viu no vídeo,<br><em>comprou na hora.</em></h1>
+      <p class="lead">Não é um slide. Toque no celular ao lado e viva a jornada que eu quero construir com a BRScience: do TikTok à live, da loja oficial aos marketplaces do mundo.</p>
+      <div class="steps" id="steps"></div>
+      <div class="hint"><i></i> Dica: clique nos vídeos, nos comentários, no botão Comprar. Tudo responde.</div>
+    </div>
+
+    <div class="stage">
+      <div class="phone"><div class="screen" id="screen"></div></div>
+      <div class="caption" id="caption"></div>
+    </div>
+  </div>
+</div>
+
+<section class="blk" id="why">
+  <div class="wrap">
+    <h2>Por que ter <em>loja própria</em> nos marketplaces?</h2>
+    <p>Muita gente ainda acha que basta o produto aparecer na plataforma, vendido por quem quiser. Alterne abaixo e veja a mesma busca do cliente, sem e com loja oficial da marca.</p>
+    <div class="slide">
+      <h3>Quem vende a sua marca <em>quando você não está lá?</em></h3>
+      <div class="sub2">Sem loja oficial, qualquer revendedor define preço, foto e promessa. Com loja oficial, a marca volta a ser dona da vitrine.</div>
+      <div class="tg" role="tablist"><button id="tgOff" class="on">Sem loja oficial</button><button id="tgOn">Com loja oficial</button></div>
+      <div class="sgrid">
+        <div class="serp"><div class="q">🔍 shampoo BRScience</div><div id="serp" style="display:grid;gap:8px"></div><small style="color:#999;font-size:10px">Exemplo ilustrativo. Vendedores e preços fictícios.</small></div>
+        <div>
+          <div class="meters" id="meters"></div>
+          <div class="why6" id="why6"></div>
+        </div>
+      </div>
+      <div class="fine">Escala dos medidores ilustrativa, não é medição. Quem pode abrir loja oficial: dono da marca ou agente autorizado, com marca registrada e empresa constituída. As exigências variam por plataforma e país: confirmar nas regras oficiais de cada marketplace. No 11.11 de 2024, 589 marcas passaram de RMB 100 milhões em vendas no Taobao e Tmall (<a href="https://www.businesswire.com/news/home/20241111075330/en/Taobao-and-Tmall%E2%80%99s-11.11-Shopping-Festival-Records-Robust-Growth" target="_blank" rel="noopener">Alibaba</a>). Em 2025, a Tmall informou o maior crescimento de GMV em quatro anos (<a href="https://www.alibabagroup.com/en-US/document-1926184987447525376" target="_blank" rel="noopener">Alibaba</a>).</div>
+    </div>
+    <h3 style="margin:34px 0 4px;color:var(--green);font-size:22px;letter-spacing:-.5px">Glossário rápido para quem está chegando agora</h3>
+    <div class="gloss" id="gloss"></div>
+  </div>
+</section>
+
+<section class="blk" id="calc">
+  <div class="wrap">
+    <h2>Quanto uma live por semana <em>pode render?</em></h2>
+    <p>Mexa nos números. As premissas são suas, não minhas: troque pelos dados reais da marca e a conta se ajusta na hora. Valores iniciais são hipóteses de trabalho, não promessa de resultado.</p>
+    <div class="calc">
+      <div class="card">
+        <div class="ctl"><label>Lives por mês <b id="v1"></b></label><input type="range" id="c1" min="1" max="20" value="4"></div>
+        <div class="ctl"><label>Espectadores por live <b id="v2"></b></label><input type="range" id="c2" min="100" max="20000" step="100" value="1500"></div>
+        <div class="ctl"><label>Conversão (compram) <b id="v3"></b></label><input type="range" id="c3" min="0.2" max="6" step="0.1" value="1.5"></div>
+        <div class="ctl"><label>Ticket médio (R$) <b id="v4"></b></label><input type="range" id="c4" min="60" max="600" step="10" value="229"></div>
+        <div class="ctl"><label>Mercados ativos <b id="v5"></b></label><input type="range" id="c5" min="1" max="4" value="1"></div>
+      </div>
+      <div class="card">
+        <div class="kpis">
+          <div class="kpi"><small>Pedidos / mês</small><b id="k1"></b></div>
+          <div class="kpi"><small>Pedidos / live</small><b id="k2"></b></div>
+          <div class="kpi big"><small>Receita estimada / mês</small><b id="k3"></b></div>
+        </div>
+        <div class="bars" id="bars"></div>
+        <p class="note">Projeção de 6 meses com crescimento de audiência de 15% ao mês. Mercados adicionais entram como multiplicador conservador (+35% cada). Simulação para conversa, não previsão.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="blk">
+  <div class="wrap">
+    <h2>Como eu <em>abro o mundo</em></h2>
+    <p>Um mercado por vez, com a mesma máquina de conteúdo. Cada etapa tem entrega clara e um número para acompanhar.</p>
+    <div class="road">
+      <div class="card"><small>MÊS 1</small><h4>TikTok oficial no ar</h4><p>Conta oficial, curadoria do conteúdo das cabeleireiras e primeiras lives-piloto.</p></div>
+      <div class="card"><small>MÊS 2–3</small><h4>Loja oficial Brasil</h4><p>TikTok Shop e marketplaces com catálogo, preço e logística alinhados.</p></div>
+      <div class="card"><small>MÊS 4–6</small><h4>Europa com a linha SOUL</h4><p>Perfil e loja por país, moeda local e conteúdo por idioma.</p></div>
+      <div class="card"><small>MÊS 6+</small><h4>Hong Kong, depois Japão</h4><p>Base em Hong Kong, parceiros locais, Tmall, Lazada e Shopee conforme a praça.</p></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <h2>Você faz o produto.<br><em>Eu abro o mundo.</em></h2>
+    <p>Yuri Zanoni · Hong Kong · Conceito ilustrativo, produtos e preços de demonstração</p>
+  </div>
+</footer>
+
+<nav class="apptabs" id="apptabs"><button data-t="tiktok"><i>▶️</i>Perfil</button><button data-t="live"><i>🔴</i>Live</button><button data-t="tmall"><i>🧧</i>11.11</button><button data-t="store"><i>🛍️</i>Loja</button><button data-t="mp"><i>🌐</i>Lojas</button><button data-t="world"><i>🗺️</i>Mundo</button><button data-t="proposal"><i>📄</i>Proposta</button></nav>
+
+<script>
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+
+/* ---------- artwork ---------- */
+function bottle(c1,c2,txt,w=44){
+  return `<svg viewBox="0 0 60 120" width="${w}" xmlns="http://www.w3.org/2000/svg">
+  <rect x="22" y="2" width="16" height="12" rx="3" fill="#222"/>
+  <rect x="26" y="14" width="8" height="8" fill="#333"/>
+  <rect x="8" y="22" width="44" height="94" rx="14" fill="${c1}"/>
+  <rect x="8" y="22" width="14" height="94" rx="10" fill="#fff" opacity=".12"/>
+  <rect x="14" y="52" width="32" height="40" rx="5" fill="${c2}"/>
+  <text x="30" y="76" text-anchor="middle" font-size="7" font-weight="800" fill="#fff" font-family="sans-serif">${txt}</text></svg>`;
+}
+function jar(){return `<svg viewBox="0 0 80 70" width="60"><rect x="6" y="10" width="68" height="14" rx="5" fill="#222"/><rect x="10" y="24" width="60" height="40" rx="9" fill="#2e6a4f"/><text x="40" y="49" text-anchor="middle" font-size="9" font-weight="800" fill="#fff" font-family="sans-serif">SOUL</text></svg>`}
+const HAIR=`<svg viewBox="0 0 200 320" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="hg" x1="0" x2="1"><stop offset="0" stop-color="#5a3a26"/><stop offset=".5" stop-color="#a77a52"/><stop offset="1" stop-color="#4a2f1f"/></linearGradient></defs>
+<path d="M100 10c-60 0-90 70-80 160 6 60 20 110 14 140h132c-6-30 8-80 14-140C190 80 160 10 100 10z" fill="url(#hg)"/>
+<g stroke="#e9c79c" stroke-opacity=".25" stroke-width="2" fill="none"><path d="M70 30c-10 90 0 190-20 280"/><path d="M100 20c0 100 0 200-6 290"/><path d="M130 30c10 90 0 190 20 280"/></g>
+<rect class="shine" x="60" y="0" width="30" height="320" fill="#fff" opacity=".18" transform="skewX(-12)"><animate attributeName="x" from="-60" to="220" dur="3.2s" repeatCount="indefinite"/></rect></svg>`;
+
+const PROD={
+ sempausa:{n:'Sem Pausa 1L',d:'Máscara orgânica instantânea',a:['#e8e8ea','#e34b3a','SEM PAUSA'],brl:229},
+ soulsh:{n:'SOUL Shampoo',d:'Para cada tipo de cacho',a:['#1f3a2c','#c64a3a','SOUL'],brl:129},
+ soulco:{n:'SOUL Condicionador',d:'Hidratação e definição',a:['#2c4a2a','#d6a021','SOUL'],brl:149},
+ soulmo:{n:'SOUL Modelador',d:'Define e protege',a:['#3a2a4a','#2f8a67','SOUL'],brl:159},
+ kit:{n:'Kit SOUL completo',d:'Shampoo + condicionador + modelador',a:['#2c4a2a','#d6a021','KIT'],brl:279},
+ fusion:{n:'Fusionfrizz 1L',d:'Progressiva premium',a:['#2a3550','#9fb3d6','FUSION'],brl:289},
+};
+const B=k=>bottle(...PROD[k].a);
+
+const MKT={
+ BR:{l:'Brasil',cur:'R$',fx:1,fmt:v=>'R$ '+Math.round(v)},
+ EU:{l:'Europa',cur:'€',fx:.165,fmt:v=>'€ '+(v*.165).toFixed(2).replace('.',',')},
+ HK:{l:'Hong Kong',cur:'HK$',fx:1.4,fmt:v=>'HK$ '+Math.round(v*1.4)},
+ JP:{l:'Japão',cur:'¥',fx:27,fmt:v=>'¥'+Math.round(v*27).toLocaleString('ja-JP')},
+};
+
+/* ---------- scenes ---------- */
+const scenes={};
+const clock=()=>`<div class="status"><span>9:41</span><span>5G ▮▮▮</span></div>`;
+
+scenes.tiktok=()=>{
+ const vids=[
+  ['TRATAMENTO DE VERDADE','linear-gradient(160deg,#2a4a38,#101c16)'],
+  ['BRILHO QUE IMPRESSIONA','linear-gradient(160deg,#a77a52,#3a2418)'],
+  ['RESULTADO PROFISSIONAL','linear-gradient(160deg,#b8bcc2,#555a62)'],
+  ['LISO PERFEITO','linear-gradient(160deg,#5a3a26,#1a0f09)'],
+  ['NUTRIÇÃO PROFUNDA','linear-gradient(160deg,#2e6a4f,#12261d)'],
+  ['CACHOS DEFINIDOS','linear-gradient(160deg,#c48a4a,#4a2f16)'],
+  ['TEXTURA CREMOSA','linear-gradient(160deg,#e8d9c4,#9c8467)'],
+  ['LIMPEZA EQUILIBRADA','linear-gradient(160deg,#7aa0b8,#2a3f4f)'],
+  ['🔴 AO VIVO AGORA','linear-gradient(160deg,#fe2c55,#5a0f1e)'],
+ ];
+ return `<div class="scene tt" id="s-tiktok">${clock()}
+ <div class="top"><span>‹</span><b>BRScience</b><span>🔔 ⋯</span></div>
+ <div class="avatar">BRSCIENCE</div><h4>@brscienceoficial</h4>
+ <div class="stats"><div><b>128</b>Seguindo</div><div><b>48,2 mil</b>Seguidores</div><div><b>1,1 mi</b>Curtidas</div></div>
+ <div class="btns"><span class="btn-r" id="follow">Seguir</span><span class="btn-g">Mensagem</span></div>
+ <div class="bio">Cosméticos capilares profissionais<br>Desempenho que transforma.</div>
+ <div class="grid">${vids.map((v,i)=>`<div class="vid ${i==8?'live':''}" data-go="${i==8?'live':''}" style="background:${v[1]}">${i==8?'<span class="badge">LIVE</span>':''}▶ ${v[0]}</div>`).join('')}</div></div>`;
+};
+
+const COMMENTS=[
+ ['cachos.reais','ual que brilho 😍','#a05a3c'],['beleza.pro','onde compro?','#3c7aa0'],['linda.sempre','ainda sempre!','#8a3ca0'],
+ ['ju.cabeleireira','uso no salão, recomendo muito','#3ca06a'],['studio.duda','essa progressiva é top','#a0883c'],['marcelohair','queria ver no cabelo cacheado','#a03c5a'],
+ ['cachosday','quanto custa o kit?','#3c5aa0'],['halk.bylais','meus clientes amam','#5aa03c'],['dani.k','já comprei o meu 🛒','#a03c3c'],['rafa.beauty','chegou rápido!','#3ca0a0'],
+];
+const HOSTSVG=`<svg class="host" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+<defs><linearGradient id="skin" x1="0" x2="1"><stop offset="0" stop-color="#b57a56"/><stop offset="1" stop-color="#9a6444"/></linearGradient>
+<linearGradient id="shirt" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#1f5a43"/><stop offset="1" stop-color="#10382a"/></linearGradient></defs>
+<g fill="#1d1109"><ellipse cx="150" cy="130" rx="78" ry="82"/><circle cx="76" cy="112" r="23"/><circle cx="79" cy="94" r="23"/><circle cx="86" cy="77" r="23"/><circle cx="98" cy="63" r="23"/><circle cx="113" cy="51" r="23"/><circle cx="131" cy="44" r="23"/><circle cx="150" cy="42" r="23"/><circle cx="169" cy="44" r="23"/><circle cx="187" cy="51" r="23"/><circle cx="202" cy="63" r="23"/><circle cx="214" cy="77" r="23"/><circle cx="221" cy="94" r="23"/><circle cx="224" cy="112" r="23"/><circle cx="80" cy="135" r="22"/><circle cx="220" cy="135" r="22"/><circle cx="77" cy="158" r="22"/><circle cx="223" cy="158" r="22"/><circle cx="80" cy="181" r="22"/><circle cx="220" cy="181" r="22"/><circle cx="77" cy="204" r="22"/><circle cx="223" cy="204" r="22"/><circle cx="80" cy="227" r="22"/><circle cx="220" cy="227" r="22"/><circle cx="77" cy="250" r="20"/><circle cx="223" cy="250" r="20"/></g>
+<path d="M30 300C30 238 86 214 150 214s120 24 120 86z" fill="url(#shirt)"/>
+<path d="M118 214l32 40 32-40z" fill="#9a6444"/>
+<text x="150" y="285" text-anchor="middle" font-size="11" font-weight="800" fill="#fff" opacity=".85" font-family="sans-serif" letter-spacing="1">BRSCIENCE</text>
+<rect x="128" y="168" width="44" height="52" rx="18" fill="#9a6444"/>
+<g class="headg"><ellipse cx="150" cy="120" rx="47" ry="57" fill="url(#skin)"/>
+<g fill="#1d1109"><circle cx="112" cy="70" r="15"/><circle cx="130" cy="60" r="16"/><circle cx="150" cy="56" r="16"/><circle cx="170" cy="60" r="16"/><circle cx="188" cy="70" r="15"/><circle cx="100" cy="92" r="13"/><circle cx="200" cy="92" r="13"/></g>
+<g class="eyes"><ellipse cx="128" cy="122" rx="6.5" ry="7" fill="#1d1109"/><ellipse cx="172" cy="122" rx="6.5" ry="7" fill="#1d1109"/>
+<circle cx="130" cy="119" r="2" fill="#fff"/><circle cx="174" cy="119" r="2" fill="#fff"/></g>
+<path d="M114 106q14-9 28 0M158 106q14-9 28 0" stroke="#1d1109" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+<path d="M150 126q-6 14 2 19" stroke="#7d4d33" stroke-width="2" fill="none" stroke-linecap="round"/>
+<circle cx="116" cy="142" r="9" fill="#e0705f" opacity=".28"/><circle cx="184" cy="142" r="9" fill="#e0705f" opacity=".28"/>
+<ellipse id="mouth" cx="150" cy="155" rx="12" ry="2.2" fill="#6e1a26" stroke="#b83f52" stroke-width="3"/>
+<circle cx="101" cy="146" r="8" fill="none" stroke="#f5c542" stroke-width="2.5"/><circle cx="199" cy="146" r="8" fill="none" stroke="#f5c542" stroke-width="2.5"/></g></svg>`;
+
+scenes.live=()=>`<div class="scene live" id="s-live">${clock()}
+ <div class="studio"><div class="ring"></div>${HOSTSVG}<div class="shelf" id="shelf"></div></div>
+ <div class="lhead"><div class="lav">BR</div><div class="nm">brscienceoficial<small>Nanda · apresentadora virtual (IA)</small></div><span class="viewers" id="viewers">👁 1,2 mil</span><span class="livepill"><i></i>LIVE</span></div>
+ <div class="salechip"><span id="flash" style="display:none;color:#ffd24a;font-weight:800"></span><span>🔥 <b id="soldN">214</b> vendidos · restam <b id="leftN">23</b> kits</span></div>
+ <div class="ptoast" id="ptoast"></div>
+ <div class="sub" id="sub"></div>
+ <div class="chat" id="chat"></div>
+ <div class="side"><button id="heartBtn">❤️</button><span id="hcount">4,3 mil</span><button id="voiceBtn" title="Ativar voz">🔇</button><span>voz</span></div>
+ <div class="hearts" id="hearts"></div>
+ <div class="pin" id="pin" style="display:none"><div class="th" id="pinth"></div><div><b id="pinname"></b><small id="pinprice"></small></div><span class="buy" id="buyBtn">Comprar</span></div>
+ <div class="cbar"><div>Adicione um comentário...</div><span class="cart">🛒<em id="cartN">0</em></span></div>
+ <div class="sheet" id="sheet"><span class="x" id="closeSheet">✕</span><div id="sheetBody"></div></div></div>`;
+
+scenes.tmall=()=>`<div class="scene tm" id="s-tmall">${clock()}
+ <div class="tmhead"><b style="font-size:20px">天猫 <span style="font-weight:600;font-size:12px">TMALL</span></b><span style="font-size:11px;background:#ffe066;color:#c4001f;padding:3px 8px;border-radius:99px;font-weight:800">双11 · 11.11</span></div>
+ <div class="tmbody">
+  <div class="tmban"><span class="conf" style="left:8%">🧧</span><span class="conf" style="left:30%;animation-delay:.7s">✨</span><span class="conf" style="left:62%;animation-delay:1.3s">🧧</span><span class="conf" style="left:86%;animation-delay:.3s">💰</span>
+   <div class="big">11.11</div><div style="font-weight:800;font-size:15px;margin-top:2px">全球狂欢季 · 已开抢</div><small class="gl" style="opacity:.85">Festival global de compras · já começou</small>
+   <div class="gmv"><small>全网成交额<span class="gl"> · volume vendido agora (simulação visual)</span></small><b id="gmv">¥ 1,284,930,114</b></div></div>
+  <div class="env" id="env"><div style="font-size:30px">🧧</div><div><b>领红包<span class="gl"> · Pegue seu envelope</span></b><br><small>点击拆开 · 仅限今日<span class="gl"> · Toque para abrir. Vale só hoje.</span></small></div></div>
+  <div class="cats">${[['美妆','Beleza'],['母婴','Bebê'],['数码','Eletrônicos'],['家电','Casa'],['服饰','Moda'],['食品','Comida'],['国际','Importados'],['直播','Lives']].map(c=>`<div><i>${c[0]}</i><small class="gl">${c[1]}</small></div>`).join('')}</div>
+  <div class="tmcard official"><div class="tmlogo">BR</div><div style="flex:1"><b>BRScience 官方旗舰店</b> <span class="vbadge">天猫 官方</span><br><small>官方认证 · 12.4万粉丝 · <span id="orders">12,483</span> 人今日下单<span class="gl"><br>Loja oficial · 12,4 mil seguidores · pedidos hoje</span></small></div><button class="tmgo" id="tmgo">进店</button></div>
+  <div class="tmsec"><b>限时秒杀<span class="gl"> · Oferta relâmpago</span></b><span class="cdbox" id="tmcd" style="margin:0"><span>02</span><span>14</span><span>09</span></span></div>
+  <div class="flashg">${[['soulsh','SOUL 洗发水','¥ 168 → ¥ 119',72],['soulco','SOUL 护发素','¥ 194 → ¥ 139',58],['sempausa','Sem Pausa 发膜 1L','¥ 298 → ¥ 209',91]].map(f=>`<div class="fi"><div class="im">${B(f[0]).replace('width="44"','width="38"')}</div><b>${f[1]}</b><div class="pp">${f[2]}</div><div class="prog"><i style="width:${f[3]}%"></i><span>已抢 ${f[3]}%</span></div></div>`).join('')}</div>
+  <div class="tmlive"><div class="liv">LIVE</div><div style="flex:1"><b>BRScience 直播间</b><br><small>🔴 <span id="tmview">12,3万</span> 人在看<span class="gl"> · Live com 12,3 mil pessoas</span></small></div><span style="color:#ff0036;font-weight:800">›</span></div>
+  <div class="tmsec"><b>热销榜<span class="gl"> · Mais vendidos em cabelo</span></b></div>
+  <div class="rank">${[['1','国际大牌 A','¥ 189'],['2','BRScience SOUL','¥ 159'],['3','国际大牌 B','¥ 219'],['4','国货新锐','¥ 99']].map(r=>`<div class="${r[1].startsWith('BR')?'me':''}"><b>${r[0]}</b><span>${r[1]}</span><em>${r[2]}</em></div>`).join('')}</div>
+  <div style="height:70px"></div>
+ </div>
+ <div class="tmtoast" id="tmtoast"></div>
+ <div class="tmnav"><span>首页<small class="gl">Início</small></span><span>逛逛<small class="gl">Explorar</small></span><span>购物车<small class="gl">Carrinho</small><em>99+</em></span><span>我的<small class="gl">Perfil</small></span></div></div>`;
+
+scenes.store=()=>`<div class="scene store" id="s-store">${clock()}
+ <div class="shead"><div class="srch">🔍 Buscar na loja</div>
+ <div class="id"><div class="lg">BRSCIENCE</div><div><b>BRScience</b><small>Loja oficial</small><div style="font-size:11px;opacity:.85;margin-top:2px">Cosméticos capilares profissionais</div></div></div>
+ <div class="trust"><span>🚚 Entrega<br>para todo o país</span><span>🛡️ Produtos<br>originais</span><span>🎧 Atendimento<br>especializado</span></div></div>
+ <div class="regions" id="regions">${Object.entries(MKT).map(([k,m])=>`<button data-r="${k}" class="${k=='BR'?'on':''}">${m.l}</button>`).join('')}</div>
+ <div class="prods" id="prods"></div>
+ <div class="sbtn"><button class="cta" id="storeBuy">Comprar agora</button></div></div>`;
+
+scenes.mp=()=>`<div class="scene mp" id="s-mp">${clock()}<div id="mpwrap" style="display:flex;flex-direction:column;flex:1;min-height:0"></div></div>`;
+
+scenes.world=()=>`<div class="scene map" id="s-world">${clock()}
+ <div class="mapbox" id="mapbox">
+  <svg viewBox="0 0 300 380" style="position:absolute;inset:0;width:100%;height:100%;opacity:.35"><g fill="#4f9d7a">
+   <path d="M30 120c20-20 60-30 90-20 15 5 30 25 25 45-5 25-30 30-45 55-8 14-12 40-30 45-20 0-25-30-30-55-5-25-30-40-10-70z"/>
+   <path d="M120 70c25-15 80-10 105 5 15 10 30 5 45 20 10 15 0 40-20 40-20 0-30-15-50-12-25 5-35 30-55 22-22-10-40-45-25-75z"/>
+   <path d="M190 190c25-10 55 0 60 25 3 20-15 35-35 38-22 0-35-25-25-63z"/></g></svg>
+  ${[['BR','Brasil',24,64,'','Loja oficial · base de produção e conteúdo'],['EU','Europa',51,29,'','Linha SOUL conquistando novos mercados'],['HK','Hong Kong',84,48,'','Hub para a Ásia · loja HK$ · Tmall, Lazada, Shopee'],['JP','Japão',92,34,'future','Próxima fronteira · parceiros locais e live em japonês']].map(d=>`<div class="dot ${d[4]}" data-m="${d[0]}" style="left:${d[2]}%;top:${d[3]}%"><i></i><span>${d[1]}</span></div>`).join('')}
+ </div>
+ <div class="mapinfo" id="mapinfo"><b>Toque num ponto</b>Veja onde a BRScience está e para onde vai.</div>
+</div>`;
+
+/* ---------- state ---------- */
+const state={scene:'tiktok',qty:1,pay:'Pix',region:'BR',plat:'tiktok',cart:0,orders:0,revenue:0};
+const STEPS=[
+ ['tiktok','Descoberta no TikTok','A marca ainda não tem conta oficial. Abra o perfil e toque na live.'],
+ ['live','Live com apresentadora IA','A Nanda apresenta, demonstra e vende 24h. Toque em Comprar com a live rolando.'],
+ ['tmall','Um dia de 11.11 no Tmall','Como é o maior dia de compras do mundo na tela do cliente chinês.'],
+ ['store','TikTok Shop · loja oficial','Viu no vídeo, compra na hora. Troque de mercado e veja moeda e catálogo.'],
+ ['mp','Marketplaces','Amazon, Shopee, AliExpress, Lazada, Tmall: a mesma marca, cada praça com sua cara.'],
+ ['world','BRScience pelo mundo','Brasil, Europa e Hong Kong rumo ao Japão.'],
+ ['why','Por que loja própria nos marketplaces','Slide para quem ainda é novo no online. Role até lá.'],
+];
+const CAPT={
+ tmall:'<b>Passo 3.</b> Tela de abertura do 11.11, o maior dia de vendas online da China. Toque no envelope, veja o volume subindo e as ofertas esgotando. <small style="display:block;margin-top:6px;opacity:.8">Em 2024, 589 marcas passaram de RMB 100 milhões em vendas no Taobao e Tmall (<a href="https://www.businesswire.com/news/home/20241111075330/en/Taobao-and-Tmall%E2%80%99s-11.11-Shopping-Festival-Records-Robust-Growth" target="_blank" rel="noopener">Alibaba</a>). Os números na tela são simulação visual.</small>',
+ tiktok:'<b>Passo 1.</b> O conteúdo das cabeleireiras já existe. Falta a conta oficial para reunir tudo. Toque no vídeo <b>AO VIVO</b>.',
+ live:'<b>Passo 2.</b> A apresentadora virtual (IA) fala, mostra o produto e fecha vendas. Toque em 🔇 para ouvir a voz e em <b>Comprar</b> para fechar um pedido.',
+ store:'<b>Passo 4.</b> O TikTok Shop recebe quem veio do vídeo. Escolha um mercado e um produto.',
+ mp:'<b>Passo 5.</b> Escolha o marketplace. Cada praça aparece no idioma e na moeda locais. Use <b>🌐 Ver em português</b> para traduzir. <small style="display:block;margin-top:4px;opacity:.7">Mockup ilustrativo, identidade visual simplificada de cada plataforma.</small>',
+ world:'<b>Passo 6.</b> A partir de Hong Kong, chegando ao Japão.'
+};
+
+const screen=$('#screen');
+screen.innerHTML=Object.values(scenes).map(f=>f()).join('');
+$('#steps').innerHTML=STEPS.map((s,i)=>`<button class="step" data-s="${s[0]}"><span class="n">${i+1}</span><span><b>${s[1]}</b><small>${s[2]}</small></span></button>`).join('');
+
+function go(name){
+ state.scene=name;
+ document.body.classList.toggle('mpon',name==='mp');
+ $$('.apptabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===name));
+ $$('.scene').forEach(s=>s.classList.toggle('on',s.id==='s-'+name));
+ $$('.step').forEach(s=>s.classList.toggle('on',s.dataset.s===name));
+ $('#caption').innerHTML=CAPT[name]||'';
+ stopLive();stopTmall();if(name==='live')startLive();if(name==='tmall')startTmall();
+ if(name==='store')renderProds();
+ if(name==='mp')renderMP();
+ if(name==='world')$('#mapinfo').innerHTML='<b>Toque num ponto</b>Veja onde a BRScience está e para onde vai.';
+ closeSheet();
+}
+$('#steps').onclick=e=>{const b=e.target.closest('.step');if(!b)return;if(b.dataset.s==='why'){document.getElementById('why').scrollIntoView({behavior:'smooth'});return}go(b.dataset.s);if(matchMedia('(max-width:760px)').matches)document.querySelector('.stage').scrollIntoView({behavior:'smooth',block:'start'})};
+screen.onclick=e=>{
+ const v=e.target.closest('.vid');
+ if(v){ if(v.dataset.go)go(v.dataset.go); else toast(v); }
+ if(e.target.id==='follow'){e.target.textContent='Seguindo';e.target.style.background='#2d2d2d'}
+};
+function toast(v){v.style.transform='scale(1.08)';setTimeout(()=>v.style.transform='',300)}
+
+/* ---------- live (apresentadora IA) ---------- */
+const SCRIPT=[
+ {t:'Fala, galera! Eu sou a Nanda, apresentadora virtual da BRScience, direto do Rio. Hoje a live é transformação ao vivo, então fica comigo!',p:null},
+ {t:'Olha esse cabelo: frizz, sem brilho, bem aquele cabelo de verão carioca. Agora a Sem Pausa, máscara orgânica instantânea. Aplica, espera três minutinhos e olha o brilho!',p:'sempausa'},
+ {t:'Quem tem cacho, atenção: a linha SOUL foi pensada pra cada tipo de cacho. Shampoo, condicionador e modelador, rotina completa.',p:'soulsh'},
+ {t:'Agora o melhor: só nesta live, o Kit SOUL completo com vinte por cento de desconto e frete grátis. É só tocar em Comprar!',p:'kit',flash:true},
+ {t:'Corre que o estoque é limitado! Tô vendo vocês comprando, que isso! Quem fechar agora ainda leva uma amostra de brinde.',p:'kit'},
+];
+const BUYERS=[['Camila','São Paulo'],['Rafaela','Curitiba'],['Juliana','Belo Horizonte'],['Dani','Recife'],['Marcos','Porto Alegre'],['Tati','Rio de Janeiro'],['Luiza','Salvador'],['Paulo','Goiânia']];
+const lv={step:0,timers:[],voice:false,sold:214,left:23,flashEnd:0,running:false};
+function setPin(k){
+ const pin=$('#pin');if(!k){pin.style.display='none';$('#shelf').innerHTML='';return}
+ state.cur=k;const p=PROD[k];pin.style.display='';
+ $('#pinname').innerHTML=p.n;
+ $('#pinprice').innerHTML=k==='kit'?'R$ 279 <s>R$ 349</s>':'R$ '+p.brl;
+ $('#pinth').innerHTML=k==='kit'?bottle(...PROD.soulsh.a,22):bottle(...p.a,24);
+ $('#shelf').innerHTML=k==='kit'?bottle(...PROD.soulsh.a,46)+bottle(...PROD.soulco.a,46)+bottle(...PROD.soulmo.a,46):bottle(...p.a,72);
+}
+function mouthOn(){clearInterval(lv.mouth);lv.mouth=setInterval(()=>{const m=$('#mouth');if(m)m.setAttribute('ry',(2+Math.random()*8).toFixed(1))},110)}
+function mouthOff(){clearInterval(lv.mouth);const m=$('#mouth');if(m)m.setAttribute('ry','2.2')}
+function say(text,done){
+ const words=text.split(' '),sub=$('#sub');let n=0,finished=false,t=null,seen=false;
+ const reveal=k=>{sub.innerHTML='<span>'+words.slice(Math.max(0,k-8),k).join(' ')+'</span>'};
+ const fin=()=>{if(finished)return;finished=true;clearInterval(t);mouthOff();done()};
+ const timer=()=>{clearInterval(t);t=setInterval(()=>{n++;reveal(n);if(n>=words.length){clearInterval(t);if(!lv.voice)lv.timers.push(setTimeout(fin,900))}},300)};
+ mouthOn();
+ if(lv.voice&&'speechSynthesis' in window){
+  const u=new SpeechSynthesisUtterance(text);u.lang='pt-BR';u.rate=1.05;
+  const v=speechSynthesis.getVoices().find(v=>/pt[-_]BR/i.test(v.lang));if(v)u.voice=v;
+  u.onboundary=ev=>{seen=true;clearInterval(t);reveal(text.slice(0,ev.charIndex).split(' ').length+1)};
+  u.onend=()=>{clearInterval(t);reveal(words.length);lv.timers.push(setTimeout(fin,700))};
+  speechSynthesis.cancel();speechSynthesis.speak(u);
+  lv.timers.push(setTimeout(()=>{if(!seen&&!finished)timer()},1500));
+  lv.timers.push(setTimeout(fin,25000));
+ }else timer();
+ lv.stopSay=()=>{finished=true;clearInterval(t);if('speechSynthesis' in window)speechSynthesis.cancel();mouthOff()};
+}
+function runStep(){
+ if(!lv.running)return;
+ const s=SCRIPT[lv.step%SCRIPT.length];setPin(s.p);
+ if(s.flash&&!lv.flashEnd)lv.flashEnd=Date.now()+300000;
+ say(s.t,()=>{lv.step++;lv.timers.push(setTimeout(runStep,1100))});
+}
+function updChip(){const a=$('#soldN'),b=$('#leftN');if(a){a.textContent=lv.sold;b.textContent=lv.left}}
+function tickFlash(){const e=$('#flash');if(!e)return;if(!lv.flashEnd){e.style.display='none';return}
+ const s=Math.max(0,Math.round((lv.flashEnd-Date.now())/1000));e.style.display='';e.textContent='⏱ '+String(s/60|0).padStart(2,'0')+':'+String(s%60).padStart(2,'0')+' · '}
+function buyEvent(){
+ const b=BUYERS[Math.random()*BUYERS.length|0],k=['sempausa','soulsh','kit','kit'][Math.random()*4|0];
+ lv.sold++;if(k==='kit'&&lv.left>3)lv.left--;updChip();
+ const t=$('#ptoast');if(!t)return;
+ t.innerHTML=`🛍️ <b>${b[0]}</b> de ${b[1]} comprou<br><small>${PROD[k].n}</small>`;
+ t.classList.remove('show');void t.offsetWidth;t.classList.add('show');heart();
+}
+let ci=0;
+function addMsg(u,t,c,buy){
+ const chat=$('#chat');if(!chat)return;
+ const d=document.createElement('div');d.className='msg'+(buy?' buy':'');
+ d.innerHTML=`<div class="a" style="background:${c}">${u[0].toUpperCase()}</div><div><b>${u}</b>${t}</div>`;
+ chat.appendChild(d);while(chat.children.length>4)chat.firstChild.remove();
+}
+function startLive(){
+ stopLive();lv.running=true;lv.step=0;lv.flashEnd=0;$('#chat').innerHTML='';$('#sub').innerHTML='';ci=0;setPin(null);
+ lv.chatT=setInterval(()=>{const c=COMMENTS[ci++%COMMENTS.length];addMsg(...c)},1800);
+ let v=1200;lv.viewT=setInterval(()=>{v+=Math.round(Math.random()*40-8);$('#viewers').textContent='👁 '+(v/1000).toFixed(1).replace('.',',')+' mil'},1800);
+ lv.saleT=setInterval(buyEvent,3300);lv.cdT=setInterval(tickFlash,1000);
+ lv.timers.push(setTimeout(runStep,600));
+}
+function stopLive(){lv.running=false;[lv.chatT,lv.viewT,lv.saleT,lv.cdT,lv.mouth].forEach(clearInterval);lv.timers.forEach(clearTimeout);lv.timers=[];if(lv.stopSay)lv.stopSay()}
+function heart(){
+ const h=document.createElement('div');h.className='heart';h.textContent=['❤️','💚','🧡','✨'][Math.random()*4|0];
+ h.style.setProperty('--x',(Math.random()*50-35)+'px');const c=$('#hearts');if(!c)return;c.appendChild(h);setTimeout(()=>h.remove(),1900);
+}
+function openSheet(){state.qty=1;renderSheet();$('#sheet').classList.add('open')}
+function closeSheet(){const s=$('#sheet');if(s)s.classList.remove('open')}
+function unit(k){return k==='kit'?279:PROD[k].brl}
+function renderSheet(){
+ const k=state.cur||'sempausa',p=PROD[k],tot=unit(k)*state.qty;
+ $('#sheetBody').innerHTML=`<div class="row"><div class="th">${bottle(...p.a,34)}</div><div><h5>${p.n}</h5><div class="pr">R$ ${tot}</div></div></div>
+ <div class="qty">Quantidade <button data-q="-1">−</button><span>${state.qty}</span><button data-q="1">+</button></div>
+ <div class="pay">${['Pix','Cartão','Boleto'].map(x=>`<span class="${state.pay===x?'on':''}" data-p="${x}">${x}</span>`).join('')}</div>
+ <button class="cta" id="confirm">Confirmar pedido · R$ ${tot}</button>`;
+}
+function confirmOrder(){
+ state.orders++;lv.sold++;updChip();$('#cartN').textContent=state.orders;
+ addMsg('você','acabei de comprar! 🛍️','#fe2c55',true);
+ $('#sheetBody').innerHTML=`<div class="done"><div class="ok">✓</div><h5 style="font-size:17px">Pedido confirmado</h5><p style="font-size:12px;color:#666;margin:6px 0 14px">Pagamento via ${state.pay}. Previsão de entrega: 3 a 5 dias úteis.<br><b style="color:var(--green)">Simulação: nenhum pedido real foi feito.</b></p><button class="cta green" id="again">Continuar assistindo</button></div>`;
+ for(let i=0;i<8;i++)setTimeout(heart,i*120);
+}
+screen.addEventListener('click',e=>{
+ const t=e.target;
+ if(t.id==='heartBtn'){heart();heart();heart()}
+ if(t.id==='buyBtn')openSheet();
+ if(t.id==='closeSheet'||t.id==='again')closeSheet();
+ if(t.dataset.q){state.qty=Math.max(1,Math.min(9,state.qty+ +t.dataset.q));renderSheet()}
+ if(t.dataset.p&&t.closest('.pay')){state.pay=t.dataset.p;renderSheet()}
+ if(t.id==='confirm')confirmOrder();
+ if(t.id==='storeBuy')go('mp');
+ if(t.id==='voiceBtn'){
+  lv.voice=!lv.voice;t.textContent=lv.voice?'🔊':'🔇';
+  if(lv.stopSay)lv.stopSay();lv.timers.forEach(clearTimeout);lv.timers=[];
+  if(lv.voice&&'speechSynthesis' in window)speechSynthesis.getVoices();
+  if(lv.running)runStep();
+ }
+});
+
+/* ---------- Tmall 11.11 ---------- */
+const tm={};
+function startTmall(){
+ stopTmall();let g=1284930114,cd=2*3600+14*60+9,vw=123000;
+ tm.g=setInterval(()=>{g+=Math.floor(150000+Math.random()*800000);const e=$('#gmv');if(e)e.textContent='¥ '+g.toLocaleString('en-US')},120);
+ tm.c=setInterval(()=>{cd=Math.max(0,cd-1);const e=$('#tmcd');if(e)e.innerHTML=[cd/3600|0,(cd%3600)/60|0,cd%60].map(x=>'<span>'+String(x).padStart(2,'0')+'</span>').join('')},1000);
+ tm.p=setInterval(()=>{$$('.prog').forEach(p=>{const i=p.firstElementChild;let w=parseFloat(i.style.width);w=Math.min(99,w+Math.random()*1.2);i.style.width=w+'%';p.lastElementChild.textContent='已抢 '+Math.round(w)+'%'});
+  const o=$('#orders');if(o)o.textContent=(12483+Math.floor((Date.now()/700)%9000)).toLocaleString('en-US');
+  vw+=Math.floor(Math.random()*900-200);const v=$('#tmview');if(v)v.textContent=(vw/10000).toFixed(1).replace('.',',')+'万'},900);
+ const NAMES=['s***8','l***2','小***美','a***k','美***Q','j***9'],PR=['SOUL 洗发水','SOUL 护发素','Sem Pausa 发膜','SOUL 造型霜'];
+ tm.t=setInterval(()=>{const e=$('#tmtoast');if(!e)return;e.innerHTML='🛒 '+NAMES[Math.random()*NAMES.length|0]+' 刚刚下单 · '+PR[Math.random()*PR.length|0]+'<span class="gl"><br><small>acabou de comprar</small></span>';e.classList.remove('show');void e.offsetWidth;e.classList.add('show')},1700);
+}
+function stopTmall(){[tm.g,tm.c,tm.p,tm.t].forEach(clearInterval)}
+screen.addEventListener('click',e=>{
+ const env=e.target.closest('#env');
+ if(env){env.innerHTML='<div style="font-size:30px">🎉</div><div><b>恭喜！领到 ¥50 优惠券</b><br><small>已放入卡包<span class="gl"> · Parabéns! Cupom de ¥50 guardado.</span></small></div>';env.classList.add('open')}
+ if(e.target.id==='tmgo'){state.plat='tmall';go('mp')}
+});
+
+/* ---------- store ---------- */
+function renderProds(){
+ const m=MKT[state.region];
+ $('#prods').innerHTML=Object.keys(PROD).filter(k=>state.region==='BR'||k.startsWith('soul')||k==='sempausa').map(k=>{
+  const p=PROD[k];return `<div class="p" data-k="${k}"><div class="im">${B(k).replace('width="44"','width="40"')}</div><b>${p.n}</b><small>${p.d}</small><div class="pr">${m.fmt(p.brl)}</div></div>`}).join('');
+}
+screen.addEventListener('click',e=>{
+ const r=e.target.closest('[data-r]');
+ if(r){state.region=r.dataset.r;$$('#regions button').forEach(b=>b.classList.toggle('on',b===r));renderProds()}
+ const p=e.target.closest('.p');
+ if(p){$$('.p').forEach(x=>x.classList.remove('sel'));p.classList.add('sel')}
+});
+
+/* ---------- marketplaces ---------- */
+const PLAT={
+ tiktok:{n:'TikTok Shop',logo:'TikTok Shop',c:'#000',acc:'#fe2c55',btn:'#fe2c55',btnT:'#fff',cur:'BR',lang:{ship:'Frete grátis · chega em até 5 dias',buy:'Comprar agora',tag:'Loja oficial · TikTok Shop',rev:['"Vi na live e comprei na hora!" ★★★★★','"Original e rápido." ★★★★★']},sub:'🔴 Ao vivo agora · Cupom R$ 10 na primeira compra'},
+ amazon:{n:'Amazon Brasil',logo:'amazon',c:'#131a22',acc:'#ff9900',btn:'#ffd814',btnT:'#111',cur:'BR',lang:{ship:'Entrega GRÁTIS para o Brasil',buy:'Adicionar ao carrinho',tag:'Vendido e enviado por BRScience',rev:['"Cheguei no salão e já pedi mais 3." ★★★★★','"Original, bem embalado." ★★★★★']},sub:'Mais vendido em Cuidados com o Cabelo'},
+ shopee:{n:'Shopee',logo:'Shopee',c:'#ee4d2d',acc:'#ee4d2d',btn:'#ee4d2d',btnT:'#fff',cur:'BR',lang:{ship:'Frete Grátis · Cupom R$ 10',buy:'Comprar agora',tag:'Loja Oficial · Shopee Mall',rev:['"Veio rápido e lacrado!" ★★★★★','"Cachos definidos, amei." ★★★★★']},sub:'🔥 Oferta relâmpago termina em 02:14:09'},
+ meli:{n:'Mercado Livre',logo:'mercado livre',c:'#ffe600',acc:'#3483fa',btn:'#3483fa',btnT:'#fff',cur:'BR',lang:{ship:'Chegará grátis amanhã',buy:'Comprar agora',tag:'Loja oficial BRScience · MercadoLíder',rev:['"Produto original, recomendo." ★★★★★','"Atendimento ótimo." ★★★★☆']},sub:'Mais vendido · 500 vendidos',dark:true},
+ ali:{n:'AliExpress',logo:'AliExpress',c:'#e62e04',acc:'#e62e04',btn:'#e62e04',btnT:'#fff',cur:'EU',lang:{ship:'Free shipping · Envio global',buy:'Buy now',tag:'BRScience Official Store · Top Brand',rev:['"Great quality, arrived in 9 days." ★★★★★','"Original, sealed." ★★★★★']},sub:'Choice · Welcome deal € 3 off'},
+ lazada:{n:'Lazada',logo:'Lazada',c:'#0f146d',acc:'#f57224',btn:'#f57224',btnT:'#fff',cur:'SG',lang:{ship:'Free delivery · LazMall',buy:'Buy Now',tag:'LazMall · 15-day free returns',rev:['"Authentic, fast delivery." ★★★★★','"My curls look great." ★★★★★']},sub:'LazMall Official · Flash Sale'},
+ tmall:{n:'天猫 Tmall',logo:'天猫 Tmall',c:'#ff0036',acc:'#ff0036',btn:'#ff0036',btnT:'#fff',cur:'CN',lang:{ship:'顺丰包邮 · 官方正品',buy:'立即购买',tag:'BRScience 官方旗舰店',rev:['"正品保证，发货很快" ★★★★★','"卷发定型效果很好" ★★★★★']},sub:'天猫国际 · 进口直采'},
+ hk:{n:'HKTVmall',logo:'HKTVmall',c:'#00a651',acc:'#00a651',btn:'#00a651',btnT:'#fff',cur:'HK',lang:{ship:'免運費 · 翌日送達',buy:'加入購物車',tag:'BRScience 官方店',rev:['"Good quality" ★★★★★','"送貨好快" ★★★★★']},sub:'香港本地 · 專業護髮'},
+};
+const CUR={...MKT,SG:{fmt:v=>'S$ '+Math.round(v*.26)},CN:{fmt:v=>'¥ '+Math.round(v*1.3)}};
+const UI={
+ pt:{q:'Buscar BRScience',rt:'4,8 · 2.314 avaliações',rv:'Avaliações de clientes',t:n=>n+' · BRScience Cosméticos Capilares Profissionais'},
+ en:{q:'Search BRScience',rt:'4.8 · 2,314 reviews',rv:'Customer reviews',t:()=>'SOUL Shampoo · BRScience Professional Hair Care'},
+ zh:{q:'搜索 BRScience',rt:'4.8 · 2,314 条评价',rv:'买家评价',t:()=>'SOUL 洗发水 · BRScience 专业护发 官方正品'},
+ zht:{q:'搜尋 BRScience',rt:'4.8 · 2,314 則評價',rv:'買家評價',t:()=>'SOUL 洗髮水 · BRScience 專業護髮'},
+};
+const UIMAP={tiktok:'pt',amazon:'pt',shopee:'pt',meli:'pt',ali:'en',lazada:'en',tmall:'zh',hk:'zht'};
+const PTGL={ali:'Tradução: frete grátis · envio global · loja oficial BRScience · comprar agora',lazada:'Tradução: entrega grátis · LazMall (loja oficial) · devolução grátis em 15 dias · comprar agora',tmall:'Tradução: frete grátis SF Express · loja oficial BRScience · importado direto · comprar agora · avaliações: "produto original, envio rápido" e "cacho bem definido"',hk:'Tradução: frete grátis · entrega no dia seguinte · loja oficial BRScience · adicionar ao carrinho'};
+function renderMP(){
+ const p=PLAT[state.plat],m=CUR[p.cur],ui=UI[UIMAP[state.plat]],item=p.cur==='BR'?PROD.sempausa:PROD.soulsh;
+ const price=m.fmt(item.brl),old=m.fmt(item.brl*1.25),txt=p.dark?'#222':'#fff';
+ $('#mpwrap').innerHTML=`<div class="mphead" style="background:${p.c};color:${txt}"><div class="logo" style="color:${p.dark?'#222':'#fff'}">${p.logo}${state.plat==='amazon'?'<span style="color:#ff9900">.com.br</span>':''}</div><div class="s">🔍 ${ui.q} <span>🛒</span></div></div>
+ <div class="mpbody"><div class="mpban" style="background:${p.acc};color:${p.dark?'#222':'#fff'}">${p.sub}</div>
+ <div class="mpcard"><div class="im">${bottle(...item.a,56)}</div><div><h6>${ui.t(item.n)}</h6>
+ <div class="stars">★★★★★ ${ui.rt}</div>
+ <div class="pr" style="color:${p.acc}">${price} <s style="font-size:11px;color:#999;font-weight:400">${old}</s></div>
+ <div class="chips" style="color:${p.acc}"><span>${p.lang.tag.split('·')[0]}</span><span>${p.lang.ship.split('·')[0]}</span></div>
+ <button class="mpbtn" id="mpbuy" style="background:${p.btn};color:${p.btnT}">${p.lang.buy}</button></div></div>
+ <div class="mpsec"><h6>📦 ${p.lang.ship}</h6><div style="color:#777">${p.lang.tag}</div></div>
+ <div class="mpsec"><h6>${ui.rv}</h6>${p.lang.rev.map(r=>`<div class="rev">${r}</div>`).join('')}</div></div>
+ ${PTGL[state.plat]?`<div class="ptstrip gl">${PTGL[state.plat]}</div>`:''}`;
+ $$('.plat button[data-p]').forEach(b=>b.classList.toggle('on',b.dataset.p===state.plat));
+}
+const platBar=document.createElement('div');platBar.className='plat';
+platBar.innerHTML=Object.entries(PLAT).map(([k,v])=>`<button data-p="${k}" class="${k==='tiktok'?'on':''}">${v.n}</button>`).join('');
+$('.stage').appendChild(platBar);
+platBar.insertAdjacentHTML('afterbegin','<button id="ptBtn">🌐 Ver em português</button>');
+platBar.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.id==='ptBtn'){const on=document.body.classList.toggle('showpt');b.classList.toggle('on',on);b.textContent=on?'🌐 Ocultar tradução':'🌐 Ver em português';return}if(!b.dataset.p)return;state.plat=b.dataset.p;if(state.scene!=='mp')go('mp');else renderMP()};
+screen.addEventListener('click',e=>{if(e.target.id==='mpbuy'){e.target.textContent='✓ Adicionado (demo)';setTimeout(renderMP,1400)}});
+
+/* ---------- world ---------- */
+screen.addEventListener('click',e=>{
+ const d=e.target.closest('.dot');if(!d)return;
+ const info={BR:['Brasil','Loja oficial · base de produção e conteúdo. Lives semanais em português.'],EU:['Europa','Linha SOUL conquistando novos mercados. Conta e loja por país, preços em euro.'],HK:['Hong Kong','Hub para a Ásia: loja em HK$, Lazada, Tmall e HKTVmall. Conteúdo em cantonês e inglês.'],JP:['Japão','Próxima fronteira. Parceiros locais, live em japonês, preços em ienes.']}[d.dataset.m];
+ $('#mapinfo').innerHTML=`<b>${info[0]}</b>${info[1]}`;
+});
+
+/* ---------- calculator ---------- */
+function calc(){
+ const l=+$('#c1').value,v=+$('#c2').value,c=+$('#c3').value,t=+$('#c4').value,m=+$('#c5').value;
+ const per=v*c/100,mult=1+.35*(m-1),orders=per*l*mult,rev=orders*t;
+ $('#v1').textContent=l;$('#v2').textContent=v.toLocaleString('pt-BR');$('#v3').textContent=c.toFixed(1).replace('.',',')+'%';$('#v4').textContent='R$ '+t;$('#v5').textContent=m;
+ $('#k1').textContent=Math.round(orders).toLocaleString('pt-BR');$('#k2').textContent=Math.round(per*mult).toLocaleString('pt-BR');
+ $('#k3').textContent='R$ '+Math.round(rev).toLocaleString('pt-BR');
+ const arr=[...Array(6)].map((_,i)=>rev*Math.pow(1.15,i)),mx=Math.max(...arr);
+ $('#bars').innerHTML=arr.map((x,i)=>`<div style="height:${x/mx*100}%" title="R$ ${Math.round(x).toLocaleString('pt-BR')}"><span>Mês ${i+1}</span></div>`).join('');
+}
+$$('#calc input').forEach(i=>i.oninput=calc);calc();
+
+/* ---------- slide: por que loja oficial ---------- */
+const SERP={
+ off:[['Revenda do João','R$ 189','Sem selo da marca',0],['Mega Cosméticos','R$ 129','Preço muito baixo, origem desconhecida',1],['Loja X Importados','R$ 259','Sem garantia da marca',0],['Atacado Beleza','R$ 215','Foto copiada de outro site',0],['Vendedor 4821','R$ 99','Risco de produto falsificado',1]],
+ on:[['BRScience Loja Oficial','R$ 229','✔ Loja oficial · garantia da marca',2],['Distribuidor autorizado','R$ 229','Revendedor autorizado pela marca',0],['Distribuidor autorizado 2','R$ 229','Revendedor autorizado pela marca',0]],
+};
+const METERS={off:[['Preço consistente',25],['Confiança do cliente',30],['Dados do cliente para a marca',5],['Controle da marca',10],['Acesso a campanhas e lives',15]],on:[['Preço consistente',90],['Confiança do cliente',85],['Dados do cliente para a marca',80],['Controle da marca',90],['Acesso a campanhas e lives',85]]};
+const WHY=[
+ ['Preço sob controle','Revendedores competem por centavos e derrubam a percepção de valor. Com loja oficial, a marca define preço, cupom e promoção.'],
+ ['Cliente sabe que é original','Cosmético falsificado é um medo comum de quem compra online. O selo de loja oficial responde a isso antes da pergunta.'],
+ ['Dados e relacionamento','O que o cliente buscou, quando comprou e se voltou fica com a marca. Com revendedor, isso fica com ele.'],
+ ['Campanhas e lives','Datas como o 11.11, ferramentas de live e anúncios costumam ser liberados a lojas cadastradas pela marca. Confirmar por plataforma.'],
+ ['Reputação que acumula','Avaliações e histórico ficam numa só loja, em vez de espalhados entre vendedores.'],
+ ['Proteção da marca','Com a marca registrada na plataforma, fica mais fácil denunciar anúncios falsos ou que usam a marca de forma indevida.'],
+];
+function renderWhy(on){
+ const k=on?'on':'off';
+ $('#tgOff').classList.toggle('on',!on);$('#tgOn').classList.toggle('on',on);
+ $('#serp').innerHTML=SERP[k].map(r=>`<div class="res ${r[3]===2?'main':''}"><div class="im">${bottle('#1f3a2c','#c64a3a','',24)}</div><div><b>${r[0]}</b><small>${r[2]}</small></div><div class="pr ${r[3]===1?'bad':''}">${r[1]}</div></div>`).join('');
+ $('#meters').innerHTML=METERS[k].map(m=>`<div class="mt"><label><span>${m[0]}</span><span>${m[1]}%</span></label><div><i style="width:${m[1]}%"></i></div></div>`).join('');
+}
+$('#why6').innerHTML=WHY.map((w,i)=>`<button class="${i===0?'on':''}"><b>${w[0]}</b><span>${w[1]}</span></button>`).join('');
+$('#why6').onclick=e=>{const b=e.target.closest('button');if(!b)return;$$('#why6 button').forEach(x=>x.classList.toggle('on',x===b))};
+$('#tgOff').onclick=()=>renderWhy(false);$('#tgOn').onclick=()=>renderWhy(true);renderWhy(false);
+const GL=[['GMV','Valor total vendido numa plataforma ou campanha, antes de descontar devoluções e custos. Não é lucro.','Ex.: 100 pedidos de R$ 200 = GMV de R$ 20 mil.'],['Conversão','Percentual de pessoas que viram o produto e compraram.','Em live, é compradores ÷ espectadores.'],['Comissão','Percentual que a plataforma cobra sobre cada venda. Varia por categoria e país.','Entra no preço, junto com frete e imposto.'],['Live commerce','Venda por transmissão ao vivo, com compra dentro do vídeo.','O cliente não sai do app para pagar.'],['ROAS','Quanto se vende para cada real investido em anúncio.','ROAS 4 = R$ 4 vendidos por R$ 1 de anúncio.'],['Loja oficial','Loja aberta pela própria marca ou agente autorizado, com selo da plataforma.','Diferente de revendedor, que compra e revende.']];
+$('#gloss').innerHTML=GL.map(g=>`<button><b>${g[0]}</b><span>${g[1]}</span><em>${g[2]}</em></button>`).join('');
+
+/* ---------- modo app ---------- */
+function setApp(on,keep){
+ document.body.classList.toggle('appmode',on);
+ $('#appBtn').textContent=on?'🖥️ Ver proposta':'📱 Abrir como app';
+ if(!keep){try{localStorage.setItem('appmode',on?'1':'0')}catch(e){}}
+ window.scrollTo(0,0);
+}
+$('#appBtn').onclick=()=>setApp(true);
+$('#apptabs').onclick=e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.t==='proposal'){setApp(false);setTimeout(()=>document.getElementById('why').scrollIntoView({behavior:'smooth'}),60);return}
+ go(b.dataset.t);
+};
+(function(){
+ let pref=null;try{pref=localStorage.getItem('appmode')}catch(e){}
+ const h=location.hash;
+ const on=h==='#app'?true:h==='#site'?false:pref!==null?pref==='1':true;
+ setApp(on,true);
+})();
+
+go('tiktok');
+</script>
+</body>
+</html>
